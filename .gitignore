@@ -3,3 +3,4 @@ out
 /shelf/
 /workspace.xml
 /target/
+*.iml
