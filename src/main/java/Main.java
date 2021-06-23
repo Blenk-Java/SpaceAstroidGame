@@ -72,6 +72,7 @@ public class Main {
                     }
                 }
                 timeStep++;
+                terminal.flush();
             } while (keyStroke == null);
 
             KeyType type = keyStroke.getKeyType();
@@ -189,6 +190,7 @@ public class Main {
             }
         }
     }
+
     private static void moveAsteroids(Terminal terminal2) throws Exception {
         for (GameObject asteroid : gameObjects) {
             terminal2.setCursorPosition(asteroid.oldX, asteroid.oldY);
@@ -198,6 +200,7 @@ public class Main {
             terminal2.putCharacter(a.getShape());
         }
     }
+
     private static void movePlayer(Terminal terminal2) throws Exception {
             terminal2.setCursorPosition(player.oldX, player.oldY);
             terminal2.putCharacter(' ');
@@ -229,6 +232,7 @@ public class Main {
         }
         return false;
     }
+
     private static void newPosition(Terminal terminal) throws Exception{
        //Loopar igenom listan av astroider och sätter ett nytt x värde
         for (GameObject asteroid : gameObjects) {
