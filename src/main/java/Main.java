@@ -54,8 +54,8 @@ public class Main {
                 keyStroke = terminal.pollInput();
                 if (timeStep > 100) {
                     timeStep = 0;
-                    newPosition(); //metod för side scroller
-                    moveAstroids(terminal); //metod för objekthanteraren
+                    newPosition(terminal); //metod för side scroller
+                    moveAstroids(); //metod för objekthanteraren
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal); //metod för game over
                     }
@@ -79,7 +79,7 @@ public class Main {
             callMovementManeuver(keyStroke);
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000))) {
-                newPosition();
+                newPosition(terminal);
                 lastTimeMode = LocalTime.now();
             }
 
@@ -120,6 +120,19 @@ public class Main {
             default -> { //kanske inte behövs?
                 return;
             }
+        }
+    }
+    private static void newPosition(Terminal terminal) throws Exception{
+       //Loopar igenom listan av astroider och sätter ett nytt x värde
+        for (GameObject astroid : gameObjects){
+            astroid.x--;
+        }
+        //Loopar igenom och skriver ut samt tar bort den gamla positionen
+        for (GameObject astroid : gameObjects){
+            terminal.setCursorPosition(astroid.oldX,astroid.oldY);
+            terminal.putCharacter(' ');
+            terminal.setCursorPosition(astroid.x,astroid.y);
+            terminal.putCharacter('*');
         }
     }
 
