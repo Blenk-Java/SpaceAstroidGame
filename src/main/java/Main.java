@@ -36,7 +36,6 @@ public class Main {
         int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
         int startX = columns/10;
         player = new Player(startX, startY);
-
         boolean continueReadingInput = true;
 
 
@@ -213,4 +212,13 @@ public class Main {
         }
     }
 
+    private static void spaceShipCreator(){
+
+        char[][] spaceship =   {{' ',' ','\\','\\', ' '},
+                               {' ','_','_','_', ' '},
+                               {'#','[','=','=', '>'},
+                               {' ','_','_','_', '_'},
+                               {' ',' ','/','/', ' '}};
+
+    }
 }
