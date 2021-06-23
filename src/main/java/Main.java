@@ -25,14 +25,18 @@ public class Main {
         Terminal terminal = terminalFactory.createTerminal();
 
         terminal.setCursorVisible(false); //Gömmer pekaren
-        TerminalSize terminalSize = terminal.getTerminalSize(); //Hämtar storleken på terminalen
-        int columns = terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
-        int rows = terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
+        TerminalSize terminalSize =
+                terminal.getTerminalSize(); //Hämtar storleken på terminalen
+        int columns =
+                terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
+        int rows =
+                terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
 
-        GameField gameField = new GameField(columns,rows);
+        GameField gameField = new GameField(columns, rows);
 
-        int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
-        int startX = columns/10;
+        int startY = rows
+                     / 2; //ska vi byta till int så blir det bättre koppling till columns & rows?
+        int startX = columns / 10;
         player = new Player(startX, startY);
 
         boolean continueReadingInput = true;
@@ -40,7 +44,9 @@ public class Main {
 
     }
 
-    private static void InputOutput(Boolean continueReadingInput, Terminal terminal, int rows) throws Exception {
+    private static void InputOutput(Boolean continueReadingInput,
+                                    Terminal terminal,
+                                    int rows) throws Exception {
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
@@ -73,7 +79,8 @@ public class Main {
                 System.out.println("quit");
             }
 
-            if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
+            if (!checkPlayer(
+                    rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
                 putPlayerBack(rows);
             }
             callMovementManeuver(keyStroke);
@@ -92,6 +99,33 @@ public class Main {
             }
             terminal.flush();
         }
+    }
+    private static void gameOver(Terminal terminal,int rows,int columns) throws Exception {
+        terminal.clearScreen();
+        terminal.setCursorPosition(columns/2,rows/2);
+        String str = "GAME OVER GAME OVER GAME OVER";
+
+        for (int i = 0; i < str.length(); i++) {
+            terminal.putCharacter(str.charAt(i));
+        }
+
+    }
+
+    private static boolean checkCrash() {
+        int[][] playerXY = new int[player.getSizeWidth()][player.getSizeHeight()];
+        for (GameObject object : gameObjects) {
+            int[][] objectXY = new int[object.getSizeWidth()][object.getSizeHeight()];
+
+
+            for (int i = 0; i < player.getSizeHeight(); i++) {
+
+
+            }
+
+
+
+        }
+        return false;
     }
 
     private static boolean checkPlayer(int rows) {
@@ -112,10 +146,11 @@ public class Main {
     private static void callMovementManeuver(KeyStroke keyStroke) {
         switch (keyStroke.getKeyType()) {
             case ArrowDown -> {
-                player.setY(player.getY + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
+                player.setY(player.getY
+                            + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
             }
             case ArrowUp -> {
-                player.setY(player.getY -2);
+                player.setY(player.getY - 2);
             }
             default -> { //kanske inte behövs?
                 return;
