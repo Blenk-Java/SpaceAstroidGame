@@ -199,5 +199,18 @@ public class Main {
         }
         return false;
     }
+    private static void newPosition(Terminal terminal) throws Exception{
+       //Loopar igenom listan av astroider och sätter ett nytt x värde
+        for (GameObject astroid : gameObjects){
+            astroid.x--;
+        }
+        //Loopar igenom och skriver ut samt tar bort den gamla positionen
+        for (GameObject astroid : gameObjects){
+            terminal.setCursorPosition(astroid.oldX,astroid.oldY);
+            terminal.putCharacter(' ');
+            terminal.setCursorPosition(astroid.x,astroid.y);
+            terminal.putCharacter('*');
+        }
+    }
 
 }
