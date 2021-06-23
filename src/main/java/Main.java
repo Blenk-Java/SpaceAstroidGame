@@ -8,6 +8,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
@@ -16,6 +17,7 @@ public class Main {
     static ArrayList<GameObject> gameObjects = new ArrayList<>();
 
     static Player player;
+    static Random random = new Random();
 
     public static void main(String[] args) throws Exception {
 
@@ -25,18 +27,14 @@ public class Main {
         Terminal terminal = terminalFactory.createTerminal();
 
         terminal.setCursorVisible(false); //Gömmer pekaren
-        TerminalSize terminalSize =
-                terminal.getTerminalSize(); //Hämtar storleken på terminalen
-        int columns =
-                terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
-        int rows =
-                terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
+        TerminalSize terminalSize = terminal.getTerminalSize(); //Hämtar storleken på terminalen
+        int columns = terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
+        int rows = terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
 
-        GameField gameField = new GameField(columns, rows);
+        GameField gameField = new GameField(columns,rows);
 
-        int startY = rows
-                     / 2; //ska vi byta till int så blir det bättre koppling till columns & rows?
-        int startX = columns / 10;
+        int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
+        int startX = columns/10;
         player = new Player(startX, startY);
 
         boolean continueReadingInput = true;
@@ -44,9 +42,7 @@ public class Main {
 
     }
 
-    private static void InputOutput(Boolean continueReadingInput,
-                                    Terminal terminal,
-                                    int rows) throws Exception {
+    private static void InputOutput(Boolean continueReadingInput, Terminal terminal, int rows) throws Exception {
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
@@ -61,7 +57,7 @@ public class Main {
                 if (timeStep > 100) {
                     timeStep = 0;
                     newPosition(); //metod för side scroller
-                    moveAsteroids(terminal); //metod för objekthanteraren
+                    moveAstroids(terminal); //metod för objekthanteraren
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal); //metod för game over
                     }
@@ -79,8 +75,7 @@ public class Main {
                 System.out.println("quit");
             }
 
-            if (!checkPlayer(
-                    rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
+            if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
                 putPlayerBack(rows);
             }
             callMovementManeuver(keyStroke);
@@ -135,6 +130,13 @@ public class Main {
         return true;
     }
 
+    private static boolean checkGameObject(GameObject gameObject) {
+        if (gameObject.x < 0) {
+            return false;
+        }
+        return true;
+    }
+
     private static void putPlayerBack(int rows) {
         if (player.getY() < 0) {
             player.setY(0);
@@ -146,11 +148,10 @@ public class Main {
     private static void callMovementManeuver(KeyStroke keyStroke) {
         switch (keyStroke.getKeyType()) {
             case ArrowDown -> {
-                player.setY(player.getY
-                            + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
+                player.setY(player.getY + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
             }
             case ArrowUp -> {
-                player.setY(player.getY - 2);
+                player.setY(player.getY -2);
             }
             default -> { //kanske inte behövs?
                 return;
@@ -173,4 +174,30 @@ public class Main {
             terminal2.putCharacter(player.shape);
         }
     }
+
+    private static void removeGameObject() {
+        for (GameObject gameObject : gameObjects) {
+            if (!checkGameObject(gameObject)) {
+                gameObjects.remove(gameObject);
+            }
+        }
+    }
+
+    private static void createNewGameObjects(int columns, int rows) {
+        int randomPosition = random.nextInt(rows);
+        while (checkGameObjectsPositions(randomPosition)) {
+            randomPosition = random.nextInt(rows);
+        }
+        gameObjects.add(new Astroid(columns, randomPosition, columns, randomPosition, 5, 5, '\u25CF'));
+    }
+
+    private static boolean checkGameObjectsPositions(int randomPosition) {
+        for (GameObject gameObject : gameObjects) {
+            if (gameObject.y == randomPosition) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
