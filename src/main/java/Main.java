@@ -117,40 +117,38 @@ public class Main {
 
     private static boolean checkCrash() {
 
-        int playerX, playerY;
-        int objectX, objectY;
+        boolean overlapY = false;
+        boolean overlapX = false;
+
         for (GameObject object : gameObjects) {
 
-            for (int pX = 0; pX < player.getSizeWidth(); pX++) {
+            int oArea = object.getSizeHeight() * object.getSizeWidth();
+            int pArea = player.getSizeHeight() * player.getSizeWidth();
 
-                for (int pY = 0; pY < player.getSizeHeight(); pY++) {
+            GameObject biggerObject = oArea >= pArea ? object : player;
+            GameObject smallerObject = oArea < pArea ? player : object;
 
-                    for (int oX = 0; oX < object.getSizeWidth(); oX++) {
+            int[] biggerX  = {biggerObject.getX(), biggerObject.getSizeWidth()};
+            int[] biggerY = {biggerObject.getY(), biggerObject.getSizeHeight()};
+            int[] smallerX = {smallerObject.getX(), smallerObject.getSizeWidth()};
+            int[] smallerY = {smallerObject.getY(), smallerObject.getSizeHeight()};
 
-                        for (int oY = 0; oY < object.getSizeHeight(); oY++) {
-
-                            playerX = player.getX() + pX;
-                            playerY = player.getY() + pY;
-                            objectX = object.getX() + oX;
-                            objectY = object.getY() + oY;
-
-                            if (playerX == objectX && playerY == objectY){
-                                return true;
-                            }
-
-
-                        }
-
-                    }
-
+            for (int x : smallerX) {
+                if (x >= biggerX[0] && x <= biggerX[1]) {
+                    overlapX = true;
+                    break;
                 }
-
-
             }
 
+            for (int y : smallerY) {
+                if (y >= biggerY[0] && y <= biggerX[1]) {
+                    overlapY = true;
+                    break;
+                }
+            }
 
         }
-        return false;
+        return (overlapY && overlapX);
     }
 
     private static boolean checkPlayer(int rows) {
