@@ -57,7 +57,7 @@ public class Main {
                 if (timeStep > 100) {
                     timeStep = 0;
                     newPosition(); //metod för side scroller
-                    moveAstroids(terminal); //metod för objekthanteraren
+                    moveAsteroids(terminal); //metod för objekthanteraren
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal); //metod för game over
                     }
@@ -188,7 +188,7 @@ public class Main {
         while (checkGameObjectsPositions(randomPosition)) {
             randomPosition = random.nextInt(rows);
         }
-        gameObjects.add(new Astroid(columns, randomPosition, columns, randomPosition, 5, 5, '\u25CF'));
+        gameObjects.add(new Asteroid(columns, randomPosition, columns, randomPosition, 5, 5, '\u25CF'));
     }
 
     private static boolean checkGameObjectsPositions(int randomPosition) {
@@ -201,14 +201,14 @@ public class Main {
     }
     private static void newPosition(Terminal terminal) throws Exception{
        //Loopar igenom listan av astroider och sätter ett nytt x värde
-        for (GameObject astroid : gameObjects){
-            astroid.x--;
+        for (GameObject asteroid : gameObjects) {
+            asteroid.x--;
         }
         //Loopar igenom och skriver ut samt tar bort den gamla positionen
-        for (GameObject astroid : gameObjects){
-            terminal.setCursorPosition(astroid.oldX,astroid.oldY);
+        for (GameObject asteroid : gameObjects){
+            terminal.setCursorPosition(asteroid.oldX,asteroid.oldY);
             terminal.putCharacter(' ');
-            terminal.setCursorPosition(astroid.x,astroid.y);
+            terminal.setCursorPosition(asteroid.x,asteroid.y);
             terminal.putCharacter('*');
         }
     }
