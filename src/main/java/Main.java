@@ -4,13 +4,12 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
 public class Main {
 
@@ -35,19 +34,26 @@ public class Main {
 
         int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
         int startX = columns/10;
-        player = new Player(startX, startY);
+        int playerWidth = 12;
+        int playerHeight = 4;
+        String shape = ""; //FIXA!!!
+        player = new Player(startX, startY, startX, startY, playerWidth, playerHeight, shape);
 
-        boolean continueReadingInput = true;
+        //boolean continueReadingInput = true;
+        inputOutput(terminal, rows, columns);
 
 
     }
 
-    private static void InputOutput(Boolean continueReadingInput, Terminal terminal, int rows) throws Exception {
+    private static void inputOutput(Terminal terminal, int rows, int columns) throws Exception {
+        LocalTime lastTimeMode = LocalTime.now();
+        boolean continueReadingInput = true;
+
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
-            int oldX = player.getX(); //Dubbelkolla så att dessa get-metoder finns
-            int oldY = player.getY();
+            int oldX = player.oldX;
+            int oldY = player.oldY;
 
             int timeStep = 0;
 
@@ -56,10 +62,10 @@ public class Main {
                 keyStroke = terminal.pollInput();
                 if (timeStep > 100) {
                     timeStep = 0;
-                    newPosition(); //metod för side scroller
+                    newPosition(terminal); //metod för side scroller
                     moveAsteroids(terminal); //metod för objekthanteraren
                     if (checkCrash()) { //metod för kollisionskontroll
-                        gameOver(terminal); //metod för game over
+                        gameOver(terminal, rows, columns); //metod för game over
                     }
                 }
                 timeStep++;
@@ -78,19 +84,20 @@ public class Main {
             if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
                 putPlayerBack(rows);
             }
-            callMovementManeuver(keyStroke);
+            callMovementManeuver(keyStroke); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000))) {
-                newPosition();
+                newPosition(terminal);
                 lastTimeMode = LocalTime.now();
             }
 
             if (checkCrash()) {
-                gameOver(terminal);
+                gameOver(terminal, rows, columns);
                 continueReadingInput = false;
 
             } else {
-                printOnScreen(terminal, oldX, oldY);
+                moveAsteroids(terminal);
+                movePlayer(terminal);
             }
             terminal.flush();
         }
@@ -124,7 +131,7 @@ public class Main {
     }
 
     private static boolean checkPlayer(int rows) {
-        if (player.getY < 0 || player.getY > rows) {
+        if (player.y < 0 || player.y > rows) {
             return false;
         }
         return true;
@@ -148,10 +155,10 @@ public class Main {
     private static void callMovementManeuver(KeyStroke keyStroke) {
         switch (keyStroke.getKeyType()) {
             case ArrowDown -> {
-                player.setY(player.getY + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
+                player.setY(player.y + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
             }
             case ArrowUp -> {
-                player.setY(player.getY -2);
+                player.setY(player.y -2);
             }
             default -> { //kanske inte behövs?
                 return;
@@ -159,20 +166,21 @@ public class Main {
         }
     }
     private static void moveAsteroids(Terminal terminal2) throws Exception {
+        //newPosition(terminal2);
         for (GameObject asteroid : gameObjects) {
             terminal2.setCursorPosition(asteroid.oldX, asteroid.oldY);
             terminal2.putCharacter(' ');
             terminal2.setCursorPosition(asteroid.x, asteroid.y);
-            terminal2.putCharacter(asteroid.shape);
+            if (asteroid instanceof Asteroid a)
+            terminal2.putCharacter(a.getShape());
         }
     }
     private static void movePlayer(Terminal terminal2) throws Exception {
-        for (GameObject player : gameObjects) {
             terminal2.setCursorPosition(player.oldX, player.oldY);
             terminal2.putCharacter(' ');
             terminal2.setCursorPosition(player.x, player.y);
-            terminal2.putCharacter(player.shape);
-        }
+            terminal2.putCharacter(player.getShape());
+
     }
 
     private static void removeGameObject() {
@@ -203,13 +211,6 @@ public class Main {
        //Loopar igenom listan av astroider och sätter ett nytt x värde
         for (GameObject asteroid : gameObjects) {
             asteroid.x--;
-        }
-        //Loopar igenom och skriver ut samt tar bort den gamla positionen
-        for (GameObject asteroid : gameObjects){
-            terminal.setCursorPosition(asteroid.oldX,asteroid.oldY);
-            terminal.putCharacter(' ');
-            terminal.setCursorPosition(asteroid.x,asteroid.y);
-            terminal.putCharacter('*');
         }
     }
 
