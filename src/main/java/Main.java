@@ -8,8 +8,10 @@ import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
 public class Main {
 
@@ -49,6 +51,10 @@ public class Main {
         LocalTime lastTimeMode = LocalTime.now();
         boolean continueReadingInput = true;
 
+
+    }
+
+    private static void InputOutput(Boolean continueReadingInput, Terminal terminal, int rows) throws Exception {
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
@@ -176,6 +182,7 @@ public class Main {
         }
     }
     private static void movePlayer(Terminal terminal2) throws Exception {
+        for (GameObject player : gameObjects) {
             terminal2.setCursorPosition(player.oldX, player.oldY);
             terminal2.putCharacter(' ');
             terminal2.setCursorPosition(player.x, player.y);
@@ -214,4 +221,13 @@ public class Main {
         }
     }
 
+    private static void spaceShipCreator(){
+
+        char[][] spaceship =   {{' ',' ','\\','\\', ' '},
+                               {' ','_','_','_', ' '},
+                               {'#','[','=','=', '>'},
+                               {' ','_','_','_', '_'},
+                               {' ',' ','/','/', ' '}};
+
+    }
 }
