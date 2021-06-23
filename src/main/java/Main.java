@@ -50,11 +50,6 @@ public class Main {
     private static void inputOutput(Terminal terminal, int rows, int columns) throws Exception {
         LocalTime lastTimeMode = LocalTime.now();
         boolean continueReadingInput = true;
-
-
-    }
-
-    private static void InputOutput(Boolean continueReadingInput, Terminal terminal, int rows) throws Exception {
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
@@ -70,6 +65,8 @@ public class Main {
                     timeStep = 0;
                     newPosition(terminal); //metod för side scroller
                     moveAsteroids(terminal); //metod för objekthanteraren
+                    removeGameObject();
+                    createNewGameObjects(rows, columns);
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
                     }
@@ -104,6 +101,8 @@ public class Main {
             } else {
                 moveAsteroids(terminal);
                 movePlayer(terminal);
+                createNewGameObjects(rows, columns);
+                removeGameObject();
             }
             terminal.flush();
         }
@@ -120,20 +119,39 @@ public class Main {
     }
 
     private static boolean checkCrash() {
-        int[][] playerXY = new int[player.getSizeWidth()][player.getSizeHeight()];
+
+        boolean overlapY = false;
+        boolean overlapX = false;
+
         for (GameObject object : gameObjects) {
-            int[][] objectXY = new int[object.getSizeWidth()][object.getSizeHeight()];
 
+            int oArea = object.getSizeHeight() * object.getSizeWidth();
+            int pArea = player.getSizeHeight() * player.getSizeWidth();
 
-            for (int i = 0; i < player.getSizeHeight(); i++) {
+            GameObject biggerObject = oArea >= pArea ? object : player;
+            GameObject smallerObject = oArea < pArea ? player : object;
 
+            int[] biggerX  = {biggerObject.getX(), biggerObject.getSizeWidth()};
+            int[] biggerY = {biggerObject.getY(), biggerObject.getSizeHeight()};
+            int[] smallerX = {smallerObject.getX(), smallerObject.getSizeWidth()};
+            int[] smallerY = {smallerObject.getY(), smallerObject.getSizeHeight()};
 
+            for (int x : smallerX) {
+                if (x >= biggerX[0] && x <= biggerX[1]) {
+                    overlapX = true;
+                    break;
+                }
             }
 
-
+            for (int y : smallerY) {
+                if (y >= biggerY[0] && y <= biggerX[1]) {
+                    overlapY = true;
+                    break;
+                }
+            }
 
         }
-        return false;
+        return (overlapY && overlapX);
     }
 
     private static boolean checkPlayer(int rows) {
@@ -172,7 +190,6 @@ public class Main {
         }
     }
     private static void moveAsteroids(Terminal terminal2) throws Exception {
-        //newPosition(terminal2);
         for (GameObject asteroid : gameObjects) {
             terminal2.setCursorPosition(asteroid.oldX, asteroid.oldY);
             terminal2.putCharacter(' ');
@@ -182,12 +199,10 @@ public class Main {
         }
     }
     private static void movePlayer(Terminal terminal2) throws Exception {
-        for (GameObject player : gameObjects) {
             terminal2.setCursorPosition(player.oldX, player.oldY);
             terminal2.putCharacter(' ');
             terminal2.setCursorPosition(player.x, player.y);
-            terminal2.putCharacter(player.getShape());
-        }
+            //terminal2.putCharacter(player.getShape());
     }
 
     private static void removeGameObject() {
@@ -198,7 +213,7 @@ public class Main {
         }
     }
 
-    private static void createNewGameObjects(int columns, int rows) {
+    private static void createNewGameObjects( int rows, int columns) {
         int randomPosition = random.nextInt(rows);
         while (checkGameObjectsPositions(randomPosition)) {
             randomPosition = random.nextInt(rows);
@@ -230,4 +245,6 @@ public class Main {
                                {' ',' ','/','/', ' '}};
 
     }
+
 }
+
