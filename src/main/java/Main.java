@@ -187,7 +187,7 @@ public class Main {
             terminal2.putCharacter(' ');
             terminal2.setCursorPosition(player.x, player.y);
             terminal2.putCharacter(player.getShape());
-
+        }
     }
 
     private static void removeGameObject() {
