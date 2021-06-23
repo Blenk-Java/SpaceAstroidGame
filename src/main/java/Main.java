@@ -69,15 +69,17 @@ public class Main {
                     moveAsteroids(terminal); //metod för objekthanteraren
                     removeGameObject(terminal);
 
-                    if (timeStepForAsteroids > 2500) {
-                        timeStepForAsteroids = 0;
-                        createNewGameObjects(rows, columns);
 
-                    }
 
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
                     }
+                }
+                if (timeStepForAsteroids > 10) {
+                    timeStepForAsteroids = 0;
+                    createNewGameObjects(rows, columns);
+                    System.out.println(gameObjects.size());
+
                 }
                 timeStepForAsteroids++;
                 timeStep++;
@@ -132,6 +134,7 @@ public class Main {
 
         boolean overlapY = false;
         boolean overlapX = false;
+        //System.out.println("checkCrash()");
 
         for (GameObject object : gameObjects) {
 
@@ -201,6 +204,7 @@ public class Main {
     }
 
     private static void moveAsteroids(Terminal terminal2) throws Exception {
+        //System.out.println("moveAsteroids()");
         for (GameObject asteroid : gameObjects) {
             terminal2.setCursorPosition(asteroid.oldX, asteroid.oldY);
             terminal2.putCharacter(' ');
@@ -218,6 +222,7 @@ public class Main {
     }
 
     private static void removeGameObject(Terminal terminal) throws IOException {
+        //System.out.println("removeGameObject()");
         for (GameObject gameObject : gameObjects) {
             if (!checkGameObject(gameObject)) {
                 terminal.setCursorPosition(gameObject.oldX, gameObject.oldY);
@@ -232,23 +237,28 @@ public class Main {
 
     private static void createNewGameObjects( int rows, int columns) {
         int randomPosition = random.nextInt(rows);
-        while (checkGameObjectsPositions(randomPosition)) {
+        while (checkGameObjectsPositions(randomPosition,columns)) {
             randomPosition = random.nextInt(rows);
         }
         gameObjects.add(new Asteroid(columns, randomPosition, columns, randomPosition, 5, 5, '\u25CF'));
     }
 
-    private static boolean checkGameObjectsPositions(int randomPosition) {
+    private static boolean checkGameObjectsPositions(int randomPosition, int columns) {
+        //System.out.println("checkGameObjectsPositions");
+
         for (GameObject gameObject : gameObjects) {
-            if (gameObject.y == randomPosition) {
+            if (gameObject.y == randomPosition && gameObject.x == columns) {
                 return true;
             }
         }
+
+
         return false;
     }
 
     private static void newPosition(Terminal terminal) throws Exception{
        //Loopar igenom listan av astroider och sätter ett nytt x värde
+       // System.out.println("newPositions");
         for (GameObject asteroid : gameObjects) {
             asteroid.oldX = asteroid.x;
             asteroid.x-=1;
