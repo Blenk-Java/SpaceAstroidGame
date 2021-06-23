@@ -112,10 +112,18 @@ public class Main {
     }
 
     private static boolean checkCrash() {
+        int[][] playerXY = new int[player.getSizeWidth()][player.getSizeHeight()];
         for (GameObject object : gameObjects) {
-            if (player.getY() == object.getY() && player.getX() == object.getX()) {
-                return true;
+            int[][] objectXY = new int[object.getSizeWidth()][object.getSizeHeight()];
+
+
+            for (int i = 0; i < player.getSizeHeight(); i++) {
+
+
             }
+
+
+
         }
         return false;
     }
