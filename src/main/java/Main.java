@@ -8,6 +8,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
@@ -16,6 +17,7 @@ public class Main {
     static ArrayList<GameObject> gameObjects = new ArrayList<>();
 
     static Player player;
+    static Random random = new Random();
 
     public static void main(String[] args) throws Exception {
 
@@ -101,6 +103,13 @@ public class Main {
         return true;
     }
 
+    private static boolean checkGameObject(GameObject gameObject) {
+        if (gameObject.x < 0) {
+            return false;
+        }
+        return true;
+    }
+
     private static void putPlayerBack(int rows) {
         if (player.getY() < 0) {
             player.setY(0);
@@ -121,6 +130,31 @@ public class Main {
                 return;
             }
         }
+    }
+
+    private static void removeGameObject() {
+        for (GameObject gameObject : gameObjects) {
+            if (!checkGameObject(gameObject)) {
+                gameObjects.remove(gameObject);
+            }
+        }
+    }
+
+    private static void createNewGameObjects(int columns, int rows) {
+        int randomPosition = random.nextInt(rows);
+        while (checkGameObjectsPositions(randomPosition)) {
+            randomPosition = random.nextInt(rows);
+        }
+        gameObjects.add(new Astroid(columns, randomPosition, columns, randomPosition, 5, 5, '\u25CF'));
+    }
+
+    private static boolean checkGameObjectsPositions(int randomPosition) {
+        for (GameObject gameObject : gameObjects) {
+            if (gameObject.y == randomPosition) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
