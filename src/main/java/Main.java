@@ -100,6 +100,16 @@ public class Main {
             terminal.flush();
         }
     }
+    private static void gameOver(Terminal terminal,int rows,int columns) throws Exception {
+        terminal.clearScreen();
+        terminal.setCursorPosition(columns/2,rows/2);
+        String str = "GAME OVER GAME OVER GAME OVER";
+
+        for (int i = 0; i < str.length(); i++) {
+            terminal.putCharacter(str.charAt(i));
+        }
+
+    }
 
     private static boolean checkCrash() {
         for (GameObject object : gameObjects) {
