@@ -9,6 +9,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.googlecode.lanterna.input.KeyType.ArrowDown;
+
 public class Main {
 
     static ArrayList<GameObject> gameObjects = new ArrayList<>();
@@ -20,46 +22,42 @@ public class Main {
         TerminalSize ts = new TerminalSize(100, 35);
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
         terminalFactory.setInitialTerminalSize(ts);
-        Terminal terminal2 = terminalFactory.createTerminal();
+        Terminal terminal = terminalFactory.createTerminal();
 
-        terminal2.setCursorVisible(false); //Gömmer pekaren
-        TerminalSize terminalSize =
-                terminal2.getTerminalSize(); //Hämtar storleken på terminalen
-        int columns =
-                terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
-        int rows =
-                terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
+        terminal.setCursorVisible(false); //Gömmer pekaren
+        TerminalSize terminalSize = terminal.getTerminalSize(); //Hämtar storleken på terminalen
+        int columns = terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
+        int rows = terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
 
         GameField gameField = new GameField(columns,rows);
 
-        long startY = rows/2;
-        long startX = columns/10;
+        int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
+        int startX = columns/10;
         player = new Player(startX, startY);
 
         boolean continueReadingInput = true;
 
 
-
     }
 
-    private static void InputOutput(){
+    private static void InputOutput(Boolean continueReadingInput, Terminal terminal, int rows) throws Exception {
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
-            int oldX = player.x;
-            int oldY = player.y;
+            int oldX = player.getX(); //Dubbelkolla så att dessa get-metoder finns
+            int oldY = player.getY();
 
             int timeStep = 0;
 
             do {
                 Thread.sleep(8); //might throw InterruptedException
-                keyStroke = terminal2.pollInput();
+                keyStroke = terminal.pollInput();
                 if (timeStep > 100) {
                     timeStep = 0;
-                    newPosition();
-                    moveMonsters(terminal2);
-                    if (checkCrash()) {
-                        gameOver(terminal2);
+                    newPosition(); //metod för side scroller
+                    moveAstroids(terminal); //metod för objekthanteraren
+                    if (checkCrash()) { //metod för kollisionskontroll
+                        gameOver(terminal); //metod för game over
                     }
                 }
                 timeStep++;
@@ -71,29 +69,58 @@ public class Main {
 
             if (c == Character.valueOf('q') || c == Character.valueOf('Q')) {
                 continueReadingInput = false;
-                terminal2.close();
+                terminal.close();
                 System.out.println("quit");
             }
 
-            callSwitch(keyStroke);
+            if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
+                putPlayerBack(rows);
+            }
+            callMovementManeuver(keyStroke);
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000))) {
                 newPosition();
                 lastTimeMode = LocalTime.now();
             }
 
-            /*if (bombPosition.x == x && bombPosition.y == y) {
-                crashIntoBomb = true;
-            }*/
-
             if (checkCrash()) {
-                gameOver(terminal2);
+                gameOver(terminal);
                 continueReadingInput = false;
 
             } else {
-                printOnScreen(terminal2, oldX, oldY);
+                printOnScreen(terminal, oldX, oldY);
             }
-            terminal2.flush();
+            terminal.flush();
         }
     }
+
+    private static boolean checkPlayer(int rows) {
+        if (player.getY < 0 || player.getY > rows) {
+            return false;
+        }
+        return true;
+    }
+
+    private static void putPlayerBack(int rows) {
+        if (player.getY() < 0) {
+            player.setY(0);
+        } else {
+            player.setY(rows);
+        }
+    }
+
+    private static void callMovementManeuver(KeyStroke keyStroke) {
+        switch (keyStroke.getKeyType()) {
+            case ArrowDown -> {
+                player.setY(player.getY + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
+            }
+            case ArrowUp -> {
+                player.setY(player.getY -2);
+            }
+            default -> { //kanske inte behövs?
+                return;
+            }
+        }
+    }
+
 }
