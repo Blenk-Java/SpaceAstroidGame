@@ -55,7 +55,7 @@ public class Main {
                 if (timeStep > 100) {
                     timeStep = 0;
                     newPosition(); //metod för side scroller
-                    moveAstroids(terminal); //metod för objekthanteraren
+                    moveAsteroids(terminal); //metod för objekthanteraren
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal); //metod för game over
                     }
@@ -122,5 +122,20 @@ public class Main {
             }
         }
     }
-
+    private static void moveAsteroids(Terminal terminal2) throws Exception {
+        for (GameObject asteroid : gameObjects) {
+            terminal2.setCursorPosition(asteroid.oldX, asteroid.oldY);
+            terminal2.putCharacter(' ');
+            terminal2.setCursorPosition(asteroid.x, asteroid.y);
+            terminal2.putCharacter(asteroid.shape);
+        }
+    }
+    private static void movePlayer(Terminal terminal2) throws Exception {
+        for (GameObject player : gameObjects) {
+            terminal2.setCursorPosition(player.oldX, player.oldY);
+            terminal2.putCharacter(' ');
+            terminal2.setCursorPosition(player.x, player.y);
+            terminal2.putCharacter(player.shape);
+        }
+    }
 }

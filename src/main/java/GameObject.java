@@ -6,9 +6,9 @@ public abstract class GameObject {
     protected int oldY;
     protected int sizeWidth;
     protected int sizeHeight;
-    protected String shape;
+    protected char shape;
 
-    public GameObject(int x, int y,int oldX, int oldY, int sizeWidth, int sizeHeight, String shape) {
+    public GameObject(int x, int y,int oldX, int oldY, int sizeWidth, int sizeHeight, char shape) {
         this.x = x;
         this.y = y;
         this.oldY = oldY;
@@ -35,7 +35,7 @@ public abstract class GameObject {
         this.sizeHeight = sizeHeight;
     }
 
-    public void setShape(String shape) {
+    public void setShape(char shape) {
         this.shape = shape;
     }
 
@@ -55,7 +55,7 @@ public abstract class GameObject {
         return sizeHeight;
     }
 
-    public String getShape() {
+    public char getShape() {
         return shape;
     }
     public int getOldX() {
