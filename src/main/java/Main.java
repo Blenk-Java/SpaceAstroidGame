@@ -51,10 +51,6 @@ public class Main {
         LocalTime lastTimeMode = LocalTime.now();
         boolean continueReadingInput = true;
 
-
-    }
-
-    private static void InputOutput(Boolean continueReadingInput, Terminal terminal, int rows) throws Exception {
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
@@ -70,6 +66,8 @@ public class Main {
                     timeStep = 0;
                     newPosition(terminal); //metod för side scroller
                     moveAsteroids(terminal); //metod för objekthanteraren
+                    removeGameObject();
+                    createNewGameObjects(rows, columns);
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
                     }
@@ -104,6 +102,8 @@ public class Main {
             } else {
                 moveAsteroids(terminal);
                 movePlayer(terminal);
+                createNewGameObjects(rows, columns);
+                removeGameObject();
             }
             terminal.flush();
         }
@@ -129,8 +129,6 @@ public class Main {
 
 
             }
-
-
 
         }
         return false;
@@ -182,12 +180,10 @@ public class Main {
         }
     }
     private static void movePlayer(Terminal terminal2) throws Exception {
-        for (GameObject player : gameObjects) {
             terminal2.setCursorPosition(player.oldX, player.oldY);
             terminal2.putCharacter(' ');
             terminal2.setCursorPosition(player.x, player.y);
-            terminal2.putCharacter(player.getShape());
-
+            //terminal2.putCharacter(player.getShape());
     }
 
     private static void removeGameObject() {
@@ -198,7 +194,7 @@ public class Main {
         }
     }
 
-    private static void createNewGameObjects(int columns, int rows) {
+    private static void createNewGameObjects( int rows, int columns) {
         int randomPosition = random.nextInt(rows);
         while (checkGameObjectsPositions(randomPosition)) {
             randomPosition = random.nextInt(rows);
@@ -231,3 +227,4 @@ public class Main {
 
     }
 }
+
