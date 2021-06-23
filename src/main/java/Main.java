@@ -27,14 +27,18 @@ public class Main {
         Terminal terminal = terminalFactory.createTerminal();
 
         terminal.setCursorVisible(false); //Gömmer pekaren
-        TerminalSize terminalSize = terminal.getTerminalSize(); //Hämtar storleken på terminalen
-        int columns = terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
-        int rows = terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
+        TerminalSize terminalSize =
+                terminal.getTerminalSize(); //Hämtar storleken på terminalen
+        int columns =
+                terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
+        int rows =
+                terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
 
-        GameField gameField = new GameField(columns,rows);
+        GameField gameField = new GameField(columns, rows);
 
-        int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
-        int startX = columns/10;
+        int startY = rows
+                     / 2; //ska vi byta till int så blir det bättre koppling till columns & rows?
+        int startX = columns / 10;
         player = new Player(startX, startY);
 
         boolean continueReadingInput = true;
@@ -42,7 +46,9 @@ public class Main {
 
     }
 
-    private static void InputOutput(Boolean continueReadingInput, Terminal terminal, int rows) throws Exception {
+    private static void InputOutput(Boolean continueReadingInput,
+                                    Terminal terminal,
+                                    int rows) throws Exception {
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
@@ -75,7 +81,8 @@ public class Main {
                 System.out.println("quit");
             }
 
-            if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
+            if (!checkPlayer(
+                    rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
                 putPlayerBack(rows);
             }
             callMovementManeuver(keyStroke);
@@ -95,9 +102,11 @@ public class Main {
             terminal.flush();
         }
     }
-    private static void gameOver(Terminal terminal,int rows,int columns) throws Exception {
+
+    private static void gameOver(Terminal terminal, int rows, int columns)
+            throws Exception {
         terminal.clearScreen();
-        terminal.setCursorPosition(columns/2,rows/2);
+        terminal.setCursorPosition(columns / 2, rows / 2);
         String str = "GAME OVER GAME OVER GAME OVER";
 
         for (int i = 0; i < str.length(); i++) {
@@ -107,16 +116,37 @@ public class Main {
     }
 
     private static boolean checkCrash() {
-        int[][] playerXY = new int[player.getSizeWidth()][player.getSizeHeight()];
+
+        int playerX, playerY;
+        int objectX, objectY;
         for (GameObject object : gameObjects) {
-            int[][] objectXY = new int[object.getSizeWidth()][object.getSizeHeight()];
+
+            for (int pX = 0; pX < player.getSizeWidth(); pX++) {
+
+                for (int pY = 0; pY < player.getSizeHeight(); pY++) {
+
+                    for (int oX = 0; oX < object.getSizeWidth(); oX++) {
+
+                        for (int oY = 0; oY < object.getSizeHeight(); oY++) {
+
+                            playerX = player.getX() + pX;
+                            playerY = player.getY() + pY;
+                            objectX = object.getX() + oX;
+                            objectY = object.getY() + oY;
+
+                            if (playerX == objectX && playerY == objectY){
+                                return true;
+                            }
 
 
-            for (int i = 0; i < player.getSizeHeight(); i++) {
+                        }
+
+                    }
+
+                }
 
 
             }
-
 
 
         }
@@ -148,16 +178,18 @@ public class Main {
     private static void callMovementManeuver(KeyStroke keyStroke) {
         switch (keyStroke.getKeyType()) {
             case ArrowDown -> {
-                player.setY(player.getY + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
+                player.setY(player.getY
+                            + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
             }
             case ArrowUp -> {
-                player.setY(player.getY -2);
+                player.setY(player.getY - 2);
             }
             default -> { //kanske inte behövs?
                 return;
             }
         }
     }
+
     private static void moveAsteroids(Terminal terminal2) throws Exception {
         for (GameObject asteroid : gameObjects) {
             terminal2.setCursorPosition(asteroid.oldX, asteroid.oldY);
@@ -166,6 +198,7 @@ public class Main {
             terminal2.putCharacter(asteroid.shape);
         }
     }
+
     private static void movePlayer(Terminal terminal2) throws Exception {
         for (GameObject player : gameObjects) {
             terminal2.setCursorPosition(player.oldX, player.oldY);
@@ -188,7 +221,9 @@ public class Main {
         while (checkGameObjectsPositions(randomPosition)) {
             randomPosition = random.nextInt(rows);
         }
-        gameObjects.add(new Asteroid(columns, randomPosition, columns, randomPosition, 5, 5, '\u25CF'));
+        gameObjects.add(
+                new Asteroid(columns, randomPosition, columns, randomPosition, 5, 5,
+                             '\u25CF'));
     }
 
     private static boolean checkGameObjectsPositions(int randomPosition) {
@@ -199,16 +234,17 @@ public class Main {
         }
         return false;
     }
-    private static void newPosition(Terminal terminal) throws Exception{
-       //Loopar igenom listan av astroider och sätter ett nytt x värde
+
+    private static void newPosition(Terminal terminal) throws Exception {
+        //Loopar igenom listan av astroider och sätter ett nytt x värde
         for (GameObject asteroid : gameObjects) {
             asteroid.x--;
         }
         //Loopar igenom och skriver ut samt tar bort den gamla positionen
-        for (GameObject asteroid : gameObjects){
-            terminal.setCursorPosition(asteroid.oldX,asteroid.oldY);
+        for (GameObject asteroid : gameObjects) {
+            terminal.setCursorPosition(asteroid.oldX, asteroid.oldY);
             terminal.putCharacter(' ');
-            terminal.setCursorPosition(asteroid.x,asteroid.y);
+            terminal.setCursorPosition(asteroid.x, asteroid.y);
             terminal.putCharacter('*');
         }
     }
