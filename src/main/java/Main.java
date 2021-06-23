@@ -56,7 +56,7 @@ public class Main {
                 keyStroke = terminal.pollInput();
                 if (timeStep > 100) {
                     timeStep = 0;
-                    newPosition(); //metod för side scroller
+                    newPosition(terminal); //metod för side scroller
                     moveAstroids(terminal); //metod för objekthanteraren
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal); //metod för game over
@@ -81,7 +81,7 @@ public class Main {
             callMovementManeuver(keyStroke);
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000))) {
-                newPosition();
+                newPosition(terminal);
                 lastTimeMode = LocalTime.now();
             }
 
