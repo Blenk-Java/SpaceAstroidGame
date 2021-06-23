@@ -1,6 +1,7 @@
 public class Astroid extends GameObject {
 
-    public Astroid(long x, long y) {
-        super(x, y);
+    public Astroid(int x, int y,int oldX,int oldY, int sizeWidth, int sizeHeight, String shape) {
+        super(x, y, oldX, oldY, sizeWidth, sizeHeight, shape);
     }
+
 }
