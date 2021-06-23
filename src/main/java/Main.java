@@ -6,6 +6,7 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        TerminalSize ts = new TerminalSize(100, 35);
+        TerminalSize ts = new TerminalSize(90, 36);
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
         terminalFactory.setInitialTerminalSize(ts);
         Terminal terminal = terminalFactory.createTerminal();
@@ -57,20 +58,28 @@ public class Main {
             int oldY = player.oldY;
 
             int timeStep = 0;
+            int timeStepForAsteroids = 0;
 
             do {
                 Thread.sleep(8); //might throw InterruptedException
                 keyStroke = terminal.pollInput();
-                if (timeStep > 100) {
+                if (timeStep > 10) {
                     timeStep = 0;
                     newPosition(terminal); //metod för side scroller
                     moveAsteroids(terminal); //metod för objekthanteraren
-                    removeGameObject();
-                    createNewGameObjects(rows, columns);
+                    removeGameObject(terminal);
+
+                    if (timeStepForAsteroids > 2500) {
+                        timeStepForAsteroids = 0;
+                        createNewGameObjects(rows, columns);
+
+                    }
+
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
                     }
                 }
+                timeStepForAsteroids++;
                 timeStep++;
                 terminal.flush();
             } while (keyStroke == null);
@@ -90,7 +99,7 @@ public class Main {
             }
             callMovementManeuver(keyStroke); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
 
-            if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000))) {
+            if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000000))) {
                 newPosition(terminal);
                 lastTimeMode = LocalTime.now();
             }
@@ -103,7 +112,7 @@ public class Main {
                 moveAsteroids(terminal);
                 movePlayer(terminal);
                 createNewGameObjects(rows, columns);
-                removeGameObject();
+                removeGameObject(terminal);
             }
             terminal.flush();
         }
@@ -163,7 +172,7 @@ public class Main {
     }
 
     private static boolean checkGameObject(GameObject gameObject) {
-        if (gameObject.x < 0) {
+        if (gameObject.x < 1) {
             return false;
         }
         return true;
@@ -208,10 +217,15 @@ public class Main {
             //terminal2.putCharacter(player.getShape());
     }
 
-    private static void removeGameObject() {
+    private static void removeGameObject(Terminal terminal) throws IOException {
         for (GameObject gameObject : gameObjects) {
             if (!checkGameObject(gameObject)) {
+                terminal.setCursorPosition(gameObject.oldX, gameObject.oldY);
+                terminal.putCharacter(' ');
+                terminal.setCursorPosition(gameObject.x, gameObject.y);
+                terminal.putCharacter(' ');
                 gameObjects.remove(gameObject);
+                return;
             }
         }
     }
@@ -236,7 +250,8 @@ public class Main {
     private static void newPosition(Terminal terminal) throws Exception{
        //Loopar igenom listan av astroider och sätter ett nytt x värde
         for (GameObject asteroid : gameObjects) {
-            asteroid.x--;
+            asteroid.oldX = asteroid.x;
+            asteroid.x-=1;
         }
     }
 
