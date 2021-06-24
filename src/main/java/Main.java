@@ -4,6 +4,7 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+
 import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class Main {
     static int points;
     static Player player;
     static Random random = new Random();
+
 
     public static void main(String[] args) throws Exception {
 
@@ -50,6 +52,7 @@ public class Main {
 
     private static void inputOutput(Terminal terminal, int rows, int columns) throws Exception {
         LocalTime lastTimeMode = LocalTime.now();
+        LocalTime lastTimePoint = LocalTime.now();
         LocalTime pointsTime = LocalTime.now();
         boolean continueReadingInput = true;
         while (continueReadingInput) {
@@ -58,6 +61,7 @@ public class Main {
 
             int timeStep = 0;
             int timeStepForAsteroids = 0;
+            int timeStepForPoints = 0;
 
             do {
                 Thread.sleep(8); //might throw InterruptedException
@@ -72,14 +76,18 @@ public class Main {
 
                     if (timeStepForAsteroids > 50) {
                         timeStepForAsteroids = 2;
-                        createNewGameObjects(rows, columns);
-                        System.out.println(gameObjects.size());
+                        createNewGameObjects(rows, columns,GameObjectType.ASTEROID);
+                    }
+
+                    if (timeStepForPoints > 200) {
+                        timeStepForAsteroids = 2;
+                        createNewGameObjects(rows, columns,GameObjectType.POINT);
                     }
 
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
                         terminal.flush();
-                        Thread.sleep(1000*5);
+                        Thread.sleep(1000 * 5);
                         terminal.close();
                         continueReadingInput = false;
                         break;
@@ -88,9 +96,10 @@ public class Main {
 
                 timeStepForAsteroids++;
                 timeStep++;
+                timeStepForPoints++;
                 terminal.flush();
             } while (keyStroke == null);
-            if(keyStroke == null){
+            if (keyStroke == null) {
                 break;
             }
 
@@ -109,12 +118,14 @@ public class Main {
             }*/
             callMovementManeuver(keyStroke, rows); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
 
-            }
-
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000000))) {
-                createNewGameObjects(rows, columns);
+                createNewGameObjects(rows, columns, GameObjectType.ASTEROID);
                 newPosition(terminal);
                 lastTimeMode = LocalTime.now();
+            }
+            if(LocalTime.now().isAfter(lastTimePoint.plusNanos(4*800000000L))){
+                createNewGameObjects(rows, columns, GameObjectType.POINT);
+                lastTimePoint = LocalTime.now();
             }
 
             if (checkCrash()) {
@@ -162,17 +173,19 @@ public class Main {
                             objectX = object.getX() + oX;
                             objectY = object.getY() + oY;
 
-                            if (playerX == objectX && playerY == objectY){
-                                return true;
+                            if (playerX == objectX && playerY == objectY) {
+                                if (object instanceof Point) {
+                                    points += 1; // refactor?
+                                    return false;
+                                } else if (object instanceof Asteroid) {
+                                    return true;
+                                }
                             }
 
-
                         }
-
                     }
 
                 }
-
 
             }
 
@@ -290,12 +303,22 @@ public class Main {
         }
     }
 
-    private static void createNewGameObjects( int rows, int columns, String gameObjectType) {
+    private static void createNewGameObjects(int rows,
+                                             int columns,
+                                             GameObjectType gameObjectType) {
         int randomPosition = random.nextInt(rows);
-        while (checkGameObjectsPositions(randomPosition,columns)) {
+        while (checkGameObjectsPositions(randomPosition, columns)) {
             randomPosition = random.nextInt(rows);
         }
-        gameObjects.add(new Asteroid(columns, randomPosition, columns, randomPosition, 1, 1, '\u25CF'));
+        if (gameObjectType == GameObjectType.ASTEROID) {
+            gameObjects.add(
+                    new Asteroid(columns, randomPosition, columns, randomPosition, 1, 1,
+                                 '\u25CF'));
+        } else if (gameObjectType == GameObjectType.POINT) {
+            gameObjects.add(
+                    new Point(columns, randomPosition, columns, randomPosition, 1, 1,
+                              '\u25CF'));
+        }
     }
 
     private static boolean checkGameObjectsPositions(int randomPosition, int columns) {
@@ -320,15 +343,6 @@ public class Main {
         }
     }
 
-    private static void spaceShipCreator(){
-
-        char[][] spaceship =   {{' ',' ','\\','\\', ' '},
-                               {' ','_','_','_', ' '},
-                               {'#','[','=','=', '>'},
-                               {' ','_','_','_', '_'},
-                               {' ',' ','/','/', ' '}};
-
-    }
 
     private static void pointsCheck (LocalTime pointsTime) {
         if (LocalTime.now().isAfter(pointsTime.plusSeconds(1))) {
@@ -337,3 +351,4 @@ public class Main {
         }
     }
 }
+
