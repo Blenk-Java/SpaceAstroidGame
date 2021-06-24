@@ -68,10 +68,10 @@ public class Main {
                 if (timeStep > 10) {
                     timeStep = 0;
                     newPosition(terminal); //metod för side scroller
-                    moveAsteroids(terminal); //metod för objekthanteraren
+                    moveObjects(terminal); //metod för objekthanteraren
                     movePlayer(terminal);
                     removeGameObject(terminal);
-                    pointsCheck(pointsTime);
+                    pointsTime = pointsCheck(pointsTime);
 
                     if (timeStepForAsteroids > 50) {
                         timeStepForAsteroids = 2;
@@ -96,6 +96,7 @@ public class Main {
                 timeStepForAsteroids++;
                 timeStep++;
                 timeStepForPoints++;
+                drawScoreBoard(terminal);
                 terminal.flush();
             } while (keyStroke == null);
             if(keyStroke == null){
@@ -122,23 +123,27 @@ public class Main {
                 newPosition(terminal);
                 lastTimeMode = LocalTime.now();
             }
-            if(LocalTime.now().isAfter(lastTimePoint.plusNanos(4*800000000L))){
+            if(LocalTime.now().isAfter(lastTimePoint.plusSeconds(4))){
                 createNewGameObjects(rows, columns, GameObjectType.POINT);
                 lastTimePoint = LocalTime.now();
             }
 
             if (checkCrash()) {
-                gameOver(terminal, rows, columns);
-                continueReadingInput = false;
+                gameOver(terminal, rows, columns); //metod för game over
+                terminal.flush();
+                Thread.sleep(1000*5);
+                terminal.close();
+                break;
 
             } else {
 
                 moveObjects(terminal);
                 movePlayer(terminal);
-                pointsCheck(pointsTime);
+                pointsTime = pointsCheck(pointsTime);
 
                 removeGameObject(terminal);
             }
+            drawScoreBoard(terminal);
             terminal.flush();
         }
     }
@@ -180,7 +185,7 @@ public class Main {
 
                             if (playerX == objectX && playerY == objectY) {
                                 if (object instanceof Point) {
-                                    points += 1; // refactor?
+                                    points += 50; // refactor?
                                     return false;
                                 } else if (object instanceof Asteroid) {
                                     return true;
@@ -252,7 +257,7 @@ public class Main {
     private static void drawScoreBoard(Terminal terminal2) throws Exception {
         String scoreboard = "Scoreboard: " + points;
         for (int i = 0; i < scoreboard.length(); i++) {
-            terminal2.setCursorPosition(i + 75, 2);
+            terminal2.setCursorPosition(i + 60, 2);
             terminal2.putCharacter(scoreboard.charAt(i));
         }
     }
@@ -334,7 +339,7 @@ public class Main {
         } else if (gameObjectType == GameObjectType.POINT) {
             gameObjects.add(
                     new Point(columns, randomPosition, columns, randomPosition, 1, 1,
-                              '\u25CF'));
+                              '\u20BF'));
         }
     }
 
@@ -361,11 +366,11 @@ public class Main {
     }
 
 
-    private static void pointsCheck (LocalTime pointsTime) {
-        if (LocalTime.now().isAfter(pointsTime.plusSeconds(1))) {
+    private static LocalTime pointsCheck (LocalTime pointsTime) {
+        if (LocalTime.now().isAfter(pointsTime.plusSeconds(2))) {
             points++;
-            pointsTime = LocalTime.now();
-        }
+            return LocalTime.now();
+        } return pointsTime;
     }
 
 }
