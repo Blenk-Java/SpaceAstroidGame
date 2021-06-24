@@ -38,10 +38,9 @@ public class Main {
         int startX = columns / 10;
         int playerWidth = 6;
         int playerHeight = 3;
-        //String shape = "Hej"; //FIXA!!!
-        player = new Player(startX, startY, startX, startY, playerWidth, playerHeight);
 
-        //boolean continueReadingInput = true;
+        player = new Player(startX, startY, startX, startY, playerWidth, playerHeight, 3);
+
         inputOutput(terminal, rows, columns);
 
 
@@ -111,9 +110,6 @@ public class Main {
                 System.out.println("quit");
             }
 
-            /*if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
-                putPlayerBack(rows);
-            }*/
             callMovementManeuver(keyStroke, rows); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000000))) {
