@@ -58,6 +58,8 @@ public class Main {
             int timeStep = 0;
             int timeStepForAsteroids = 0;
             int timeStepForPoints = 0;
+            int pointsInThousands = 0;
+            int thousand = 1;
 
             do {
                 Thread.sleep(8); //might throw InterruptedException
@@ -68,6 +70,11 @@ public class Main {
                     moveObjects(terminal); //metod för objekthanteraren
                     movePlayer(terminal);
                     removeGameObject(terminal);
+                    pointsInThousands ++;
+                    if (points >= (thousand*1000)  && points <= (thousand*1000)+50 && pointsInThousands >= 10){
+                        player.setHealth(player.getHealth() +1);
+                        thousand++;
+                    }
                     pointsTime = pointsCheck(pointsTime); // Passiv inkomst
 
                     if (timeStepForAsteroids > 5) {
@@ -134,7 +141,10 @@ public class Main {
                 moveObjects(terminal);
                 movePlayer(terminal);
                 pointsTime = pointsCheck(pointsTime);
-
+                if (points >= (thousand*1000)  && points <= (thousand*1000)+50 && pointsInThousands >= 10){
+                    player.setHealth(player.getHealth() +1);
+                    thousand++;
+                }
                 removeGameObject(terminal);
             }
             drawScoreBoard(terminal);
