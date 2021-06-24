@@ -68,22 +68,29 @@ public class Main {
                     movePlayer(terminal);
                     removeGameObject(terminal);
 
-
+                    if (timeStepForAsteroids > 50) {
+                        timeStepForAsteroids = 2;
+                        createNewGameObjects(rows, columns);
+                        System.out.println(gameObjects.size());
+                    }
 
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
+                        terminal.flush();
+                        Thread.sleep(1000*5);
+                        terminal.close();
+                        continueReadingInput = false;
+                        break;
                     }
                 }
-                if (timeStepForAsteroids > 10) {
-                    timeStepForAsteroids = 0;
-                    createNewGameObjects(rows, columns);
-                    System.out.println(gameObjects.size());
 
-                }
                 timeStepForAsteroids++;
                 timeStep++;
                 terminal.flush();
             } while (keyStroke == null);
+            if(keyStroke == null){
+                break;
+            }
 
             KeyType type = keyStroke.getKeyType();
             Character c = keyStroke.getCharacter();
@@ -101,6 +108,7 @@ public class Main {
             callMovementManeuver(keyStroke, rows); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000000))) {
+                createNewGameObjects(rows, columns);
                 newPosition(terminal);
                 lastTimeMode = LocalTime.now();
             }
@@ -110,9 +118,10 @@ public class Main {
                 continueReadingInput = false;
 
             } else {
+
                 moveAsteroids(terminal);
                 movePlayer(terminal);
-                createNewGameObjects(rows, columns);
+
                 removeGameObject(terminal);
             }
             terminal.flush();
@@ -131,40 +140,42 @@ public class Main {
 
     private static boolean checkCrash() {
 
-        boolean overlapY = false;
-        boolean overlapX = false;
-        //System.out.println("checkCrash()");
-
+        int playerX, playerY;
+        int objectX, objectY;
         for (GameObject object : gameObjects) {
 
-            int oArea = object.getSizeHeight() * object.getSizeWidth();
-            int pArea = player.getSizeHeight() * player.getSizeWidth();
+            for (int pX = 0; pX < player.getSizeWidth(); pX++) {
 
-            GameObject biggerObject = oArea >= pArea ? object : player;
-            GameObject smallerObject = oArea < pArea ? player : object;
+                for (int pY = 0; pY < player.getSizeHeight(); pY++) {
 
-            int[] biggerX  = {biggerObject.getX(), biggerObject.getSizeWidth()};
-            int[] biggerY = {biggerObject.getY(), biggerObject.getSizeHeight()};
-            int[] smallerX = {smallerObject.getX(), smallerObject.getSizeWidth()};
-            int[] smallerY = {smallerObject.getY(), smallerObject.getSizeHeight()};
+                    for (int oX = 0; oX < object.getSizeWidth(); oX++) {
 
-            for (int x : smallerX) {
-                if (x >= biggerX[0] && x <= biggerX[1]) {
-                    overlapX = true;
-                    break;
+                        for (int oY = 0; oY < object.getSizeHeight(); oY++) {
+
+                            playerX = player.getX() + pX;
+                            playerY = player.getY() + pY;
+                            objectX = object.getX() + oX;
+                            objectY = object.getY() + oY;
+
+                            if (playerX == objectX && playerY == objectY){
+                                return true;
+                            }
+
+
+                        }
+
+                    }
+
                 }
+
+
             }
 
-            for (int y : smallerY) {
-                if (y >= biggerY[0] && y <= biggerX[1]) {
-                    overlapY = true;
-                    break;
-                }
-            }
 
         }
-        return (overlapY && overlapX);
+        return false;
     }
+
 
     private static boolean checkPlayer(int rows) {
         if (player.y < 0 || player.y > rows) {
@@ -274,12 +285,12 @@ public class Main {
         }
     }
 
-    private static void createNewGameObjects( int rows, int columns) {
+    private static void createNewGameObjects( int rows, int columns, String gameObjectType) {
         int randomPosition = random.nextInt(rows);
         while (checkGameObjectsPositions(randomPosition,columns)) {
             randomPosition = random.nextInt(rows);
         }
-        gameObjects.add(new Asteroid(columns, randomPosition, columns, randomPosition, 5, 5, '\u25CF'));
+        gameObjects.add(new Asteroid(columns, randomPosition, columns, randomPosition, 1, 1, '\u25CF'));
     }
 
     private static boolean checkGameObjectsPositions(int randomPosition, int columns) {
