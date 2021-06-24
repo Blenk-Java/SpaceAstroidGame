@@ -99,6 +99,7 @@ public class Main {
 
                 timeStepForAsteroids++;
                 timeStep++;
+                timeStepForPoints++;
                 terminal.flush();
             } while (keyStroke == null);
             if (keyStroke == null) {
@@ -123,9 +124,12 @@ public class Main {
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000000))) {
                 createNewGameObjects(rows, columns, GameObjectType.ASTEROID);
-                if(LocalTime.now().isAfter(lastTimePoint.plusNanos(4*800000000L)))
                 newPosition(terminal);
                 lastTimeMode = LocalTime.now();
+            }
+            if(LocalTime.now().isAfter(lastTimePoint.plusNanos(4*800000000L))){
+                createNewGameObjects(rows, columns, GameObjectType.POINT);
+                lastTimePoint = LocalTime.now();
             }
 
             if (checkCrash()) {
