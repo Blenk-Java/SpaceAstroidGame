@@ -44,7 +44,6 @@ public class Main {
         //boolean continueReadingInput = true;
         inputOutput(terminal, rows, columns);
 
-
     }
 
     private static void inputOutput(Terminal terminal, int rows, int columns) throws Exception {
@@ -187,7 +186,14 @@ public class Main {
                                     gameObjects.remove(object);
                                     return false;
                                 } else if (object instanceof Asteroid) {
-                                    return true;
+                                    if(player.getHealth() <= 1){
+                                        return true;
+                                    } else {
+                                        player.setHealth(player.getHealth()-1);
+                                        gameObjects.remove(object);
+                                        return false;
+                                    }
+
                                 }
                             }
 
