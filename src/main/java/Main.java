@@ -22,7 +22,6 @@ public class Main {
     static Player player;
     static Random random = new Random();
 
-
     public static void main(String[] args) throws Exception {
 
         TerminalSize ts = new TerminalSize(90, 36);
@@ -35,10 +34,10 @@ public class Main {
         int columns = terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
         int rows = terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
 
-        GameField gameField = new GameField(columns,rows);
+        GameField gameField = new GameField(columns, rows);
 
-        int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
-        int startX = columns/10;
+        int startY = rows / 2; //ska vi byta till int så blir det bättre koppling till columns & rows?
+        int startX = columns / 10;
         int playerWidth = 6;
         int playerHeight = 3;
         //String shape = "Hej"; //FIXA!!!
@@ -87,7 +86,7 @@ public class Main {
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
                         terminal.flush();
-                        Thread.sleep(1000 * 5);
+                        Thread.sleep(1000*5);
                         terminal.close();
                         continueReadingInput = false;
                         break;
@@ -99,7 +98,7 @@ public class Main {
                 timeStepForPoints++;
                 terminal.flush();
             } while (keyStroke == null);
-            if (keyStroke == null) {
+            if(keyStroke == null){
                 break;
             }
 
@@ -134,7 +133,7 @@ public class Main {
 
             } else {
 
-                moveAsteroids(terminal);
+                moveObjects(terminal);
                 movePlayer(terminal);
                 pointsCheck(pointsTime);
 
@@ -250,14 +249,26 @@ public class Main {
         }
     }
 
-    private static void moveAsteroids(Terminal terminal2) throws Exception {
+    private static void drawScoreBoard(Terminal terminal2) throws Exception {
+        String scoreboard = "Scoreboard: " + points;
+        for (int i = 0; i < scoreboard.length(); i++) {
+            terminal2.setCursorPosition(i + 75, 2);
+            terminal2.putCharacter(scoreboard.charAt(i));
+        }
+    }
+
+    private static void moveObjects(Terminal terminal2) throws Exception {
         //System.out.println("moveAsteroids()");
-        for (GameObject asteroid : gameObjects) {
-            terminal2.setCursorPosition(asteroid.oldX, asteroid.oldY);
+        for (GameObject object : gameObjects) {
+            terminal2.setCursorPosition(object.oldX, object.oldY);
             terminal2.putCharacter(' ');
-            terminal2.setCursorPosition(asteroid.x, asteroid.y);
-            if (asteroid instanceof Asteroid a)
-            terminal2.putCharacter(a.getShape());
+            terminal2.setCursorPosition(object.x, object.y);
+            if (object instanceof Asteroid a) {
+                terminal2.putCharacter(a.getShape());
+            }
+            if (object instanceof Point sp) {
+                terminal2.putCharacter(sp.getShape());
+            }
         }
     }
 
@@ -313,7 +324,7 @@ public class Main {
                                              int columns,
                                              GameObjectType gameObjectType) {
         int randomPosition = random.nextInt(rows);
-        while (checkGameObjectsPositions(randomPosition, columns)) {
+        while (checkGameObjectsPositions(randomPosition,columns)) {
             randomPosition = random.nextInt(rows);
         }
         if (gameObjectType == GameObjectType.ASTEROID) {
@@ -356,5 +367,6 @@ public class Main {
             pointsTime = LocalTime.now();
         }
     }
+
 }
 
