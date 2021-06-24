@@ -17,7 +17,7 @@ import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 public class Main {
 
     static ArrayList<GameObject> gameObjects = new ArrayList<>();
-
+    static int points;
     static Player player;
     static Random random = new Random();
 
@@ -50,6 +50,7 @@ public class Main {
 
     private static void inputOutput(Terminal terminal, int rows, int columns) throws Exception {
         LocalTime lastTimeMode = LocalTime.now();
+        LocalTime pointsTime = LocalTime.now();
         boolean continueReadingInput = true;
         while (continueReadingInput) {
 
@@ -67,6 +68,7 @@ public class Main {
                     moveAsteroids(terminal); //metod för objekthanteraren
                     movePlayer(terminal);
                     removeGameObject(terminal);
+                    pointsCheck(pointsTime);
 
                     if (timeStepForAsteroids > 50) {
                         timeStepForAsteroids = 2;
@@ -107,6 +109,8 @@ public class Main {
             }*/
             callMovementManeuver(keyStroke, rows); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
 
+            }
+
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000000))) {
                 createNewGameObjects(rows, columns);
                 newPosition(terminal);
@@ -121,6 +125,7 @@ public class Main {
 
                 moveAsteroids(terminal);
                 movePlayer(terminal);
+                pointsCheck(pointsTime);
 
                 removeGameObject(terminal);
             }
@@ -325,5 +330,10 @@ public class Main {
 
     }
 
+    private static void pointsCheck (LocalTime pointsTime) {
+        if (LocalTime.now().isAfter(pointsTime.plusSeconds(1))) {
+            points++;
+            pointsTime = LocalTime.now();
+        }
+    }
 }
-
