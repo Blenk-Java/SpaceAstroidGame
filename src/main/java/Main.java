@@ -255,9 +255,14 @@ public class Main {
 
     private static void drawScoreBoard(Terminal terminal2) throws Exception {
         String scoreboard = "Scoreboard: " + points;
+        String health = "Health: " + player.getHealth();
         for (int i = 0; i < scoreboard.length(); i++) {
             terminal2.setCursorPosition(i + 60, 2);
             terminal2.putCharacter(scoreboard.charAt(i));
+        }
+        for (int k = 0; k < health.length(); k++) {
+            terminal2.setCursorPosition(k + 60, 4);
+            terminal2.putCharacter(health.charAt(k));
         }
     }
 
