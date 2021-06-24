@@ -50,6 +50,8 @@ public class Main {
         LocalTime lastTimePoint = LocalTime.now();
         LocalTime pointsTime = LocalTime.now();
         boolean continueReadingInput = true;
+
+        int thousand = 1;
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
@@ -57,8 +59,9 @@ public class Main {
             int timeStep = 0;
             int timeStepForAsteroids = 0;
             int timeStepForPoints = 0;
-            int pointsInThousands = 0;
-            int thousand = 1;
+
+
+
 
             do {
                 Thread.sleep(8); //might throw InterruptedException
@@ -69,9 +72,10 @@ public class Main {
                     moveObjects(terminal); //metod för objekthanteraren
                     movePlayer(terminal);
                     removeGameObject(terminal);
-                    pointsInThousands ++;
-                    if (points >= (thousand*1000)  && points <= (thousand*1000)+50 && pointsInThousands >= 10){
+                    if (points/1000 == thousand){
                         player.setHealth(player.getHealth() +1);
+                        System.out.println(points/1000);
+                        System.out.println(thousand);
                         thousand++;
                     }
                     pointsTime = pointsCheck(pointsTime); // Passiv inkomst
@@ -86,7 +90,7 @@ public class Main {
                         createNewGameObjects(rows, columns,GameObjectType.POINT);
                     }
 
-                    if (checkCrash()) { //metod för kollisionskontroll
+                    if (checkCrash(terminal)) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
                         terminal.flush();
                         Thread.sleep(1000*5);
@@ -128,7 +132,7 @@ public class Main {
                 lastTimePoint = LocalTime.now();
             }
 
-            if (checkCrash()) {
+            if (checkCrash(terminal)) {
                 gameOver(terminal, rows, columns); //metod för game over
                 terminal.flush();
                 Thread.sleep(1000*5);
@@ -140,7 +144,7 @@ public class Main {
                 moveObjects(terminal);
                 movePlayer(terminal);
                 pointsTime = pointsCheck(pointsTime);
-                if (points >= (thousand*1000)  && points <= (thousand*1000)+50 && pointsInThousands >= 10){
+                if (points/1000 == thousand){
                     player.setHealth(player.getHealth() +1);
                     thousand++;
                 }
@@ -167,7 +171,7 @@ public class Main {
 
     }
 
-    private static boolean checkCrash() {
+    private static boolean checkCrash(Terminal terminal) throws Exception {
 
         int playerX, playerY;
         int objectX, objectY;
@@ -188,7 +192,7 @@ public class Main {
 
                             if (playerX == objectX && playerY == objectY) {
                                 if (object instanceof Point) {
-                                    points += 50; // refactor?
+                                    points += 500; // refactor?
                                     gameObjects.remove(object);
                                     return false;
                                 } else if (object instanceof Asteroid) {
