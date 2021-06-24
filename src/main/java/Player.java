@@ -1,17 +1,18 @@
 public class Player extends GameObject{
 
-    private String shape;
+    private char[][] shape = {{' ',' ',' ','\\','\\', ' '},
+            {'#','#','[','=','=', '>'},
+            {' ', ' ',' ','/','/', ' '}};
 
-    public Player(int x, int y,int oldX,int oldY, int sizeWidth, int sizeHeight, String shape) {
+    public Player(int x, int y,int oldX,int oldY, int sizeWidth, int sizeHeight) {
         super(x, y, oldX, oldY, sizeWidth, sizeHeight);
-        this.shape = shape;
     }
 
-    public String getShape() {
+    public char[][] getShape() {
         return shape;
     }
 
-    public void setShape(String shape) {
+    public void setShape(char[][] shape) {
         this.shape = shape;
     }
 }

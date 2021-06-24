@@ -37,10 +37,10 @@ public class Main {
 
         int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
         int startX = columns/10;
-        int playerWidth = 12;
-        int playerHeight = 4;
-        String shape = ""; //FIXA!!!
-        player = new Player(startX, startY, startX, startY, playerWidth, playerHeight, shape);
+        int playerWidth = 6;
+        int playerHeight = 3;
+        //String shape = "Hej"; //FIXA!!!
+        player = new Player(startX, startY, startX, startY, playerWidth, playerHeight);
 
         //boolean continueReadingInput = true;
         inputOutput(terminal, rows, columns);
@@ -54,8 +54,6 @@ public class Main {
         while (continueReadingInput) {
 
             KeyStroke keyStroke = null;
-            int oldX = player.oldX;
-            int oldY = player.oldY;
 
             int timeStep = 0;
             int timeStepForAsteroids = 0;
@@ -67,6 +65,7 @@ public class Main {
                     timeStep = 0;
                     newPosition(terminal); //metod för side scroller
                     moveAsteroids(terminal); //metod för objekthanteraren
+                    movePlayer(terminal);
                     removeGameObject(terminal);
 
 
@@ -96,10 +95,10 @@ public class Main {
                 System.out.println("quit");
             }
 
-            if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
+            /*if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
                 putPlayerBack(rows);
-            }
-            callMovementManeuver(keyStroke); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
+            }*/
+            callMovementManeuver(keyStroke, rows); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000000))) {
                 newPosition(terminal);
@@ -181,21 +180,34 @@ public class Main {
         return true;
     }
 
-    private static void putPlayerBack(int rows) {
-        if (player.getY() < 0) {
-            player.setY(0);
-        } else {
-            player.setY(rows);
+    private static boolean putPlayerBackUP(int rows, int stepSize) {
+        if  ((player.y+stepSize) > rows - player.sizeHeight){
+            return true;
         }
+        return false;
     }
 
-    private static void callMovementManeuver(KeyStroke keyStroke) {
+    private static boolean putPlayerBackDOWN(int rows, int stepSize) {
+        if ((player.getY()-stepSize) < 0) {
+            return true;
+        }
+        return false;
+    }
+
+    private static void callMovementManeuver(KeyStroke keyStroke, int rows) {
+        int stepSize = 1;
         switch (keyStroke.getKeyType()) {
             case ArrowDown -> {
-                player.setY(player.y + 2); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
+                if (!putPlayerBackUP(rows, stepSize)) {
+                    player.oldY = player.y;
+                    player.setY(player.y + stepSize); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
+                }
             }
             case ArrowUp -> {
-                player.setY(player.y -2);
+                if (!putPlayerBackDOWN(rows, stepSize)) {
+                    player.oldY = player.y;
+                    player.setY(player.y - stepSize);
+                }
             }
             default -> { //kanske inte behövs?
                 return;
@@ -215,10 +227,37 @@ public class Main {
     }
 
     private static void movePlayer(Terminal terminal2) throws Exception {
-            terminal2.setCursorPosition(player.oldX, player.oldY);
-            terminal2.putCharacter(' ');
-            terminal2.setCursorPosition(player.x, player.y);
-            //terminal2.putCharacter(player.getShape());
+        erasePlayer(terminal2);
+        int i1 = 0;
+        for (char[] charArray : player.getShape()) {
+            int i2 = 0;
+            for (char c : charArray) {
+
+                terminal2.setCursorPosition(player.x + i2, player.y + i1);
+                terminal2.putCharacter(c);
+                i2++;
+            }
+            i1++;
+
+        }
+
+    }
+
+    private static void erasePlayer(Terminal terminal) throws Exception {
+
+        int i1 = 0;
+        for (char[] charArray : player.getShape()) {
+            int i2 = 0;
+            for (char c : charArray) {
+                terminal.setCursorPosition(player.oldX + i2, player.oldY + i1);
+                terminal.putCharacter(' ');
+
+                i2++;
+            }
+            i1++;
+
+        }
+        terminal.flush();
     }
 
     private static void removeGameObject(Terminal terminal) throws IOException {
