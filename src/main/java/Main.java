@@ -4,6 +4,7 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+
 import static com.googlecode.lanterna.input.KeyType.ArrowDown;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class Main {
     static Player player;
     static Random random = new Random();
 
+
     public static void main(String[] args) throws Exception {
 
         TerminalSize ts = new TerminalSize(90, 36);
@@ -29,14 +31,18 @@ public class Main {
         Terminal terminal = terminalFactory.createTerminal();
 
         terminal.setCursorVisible(false); //Gömmer pekaren
-        TerminalSize terminalSize = terminal.getTerminalSize(); //Hämtar storleken på terminalen
-        int columns = terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
-        int rows = terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
+        TerminalSize terminalSize =
+                terminal.getTerminalSize(); //Hämtar storleken på terminalen
+        int columns =
+                terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
+        int rows =
+                terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
 
-        GameField gameField = new GameField(columns,rows);
+        GameField gameField = new GameField(columns, rows);
 
-        int startY = rows/2; //ska vi byta till int så blir det bättre koppling till columns & rows?
-        int startX = columns/10;
+        int startY = rows
+                     / 2; //ska vi byta till int så blir det bättre koppling till columns & rows?
+        int startX = columns / 10;
         int playerWidth = 6;
         int playerHeight = 3;
         //String shape = "Hej"; //FIXA!!!
@@ -48,8 +54,10 @@ public class Main {
 
     }
 
-    private static void inputOutput(Terminal terminal, int rows, int columns) throws Exception {
+    private static void inputOutput(Terminal terminal, int rows, int columns)
+            throws Exception {
         LocalTime lastTimeMode = LocalTime.now();
+        LocalTime lastTimePoint = LocalTime.now();
         boolean continueReadingInput = true;
         while (continueReadingInput) {
 
@@ -57,6 +65,7 @@ public class Main {
 
             int timeStep = 0;
             int timeStepForAsteroids = 0;
+            int timeStepForPoints = 0;
 
             do {
                 Thread.sleep(8); //might throw InterruptedException
@@ -70,14 +79,18 @@ public class Main {
 
                     if (timeStepForAsteroids > 50) {
                         timeStepForAsteroids = 2;
-                        createNewGameObjects(rows, columns);
-                        System.out.println(gameObjects.size());
+                        createNewGameObjects(rows, columns,GameObjectType.ASTEROID);
+                    }
+
+                    if (timeStepForPoints > 200) {
+                        timeStepForAsteroids = 2;
+                        createNewGameObjects(rows, columns,GameObjectType.POINT);
                     }
 
                     if (checkCrash()) { //metod för kollisionskontroll
                         gameOver(terminal, rows, columns); //metod för game over
                         terminal.flush();
-                        Thread.sleep(1000*5);
+                        Thread.sleep(1000 * 5);
                         terminal.close();
                         continueReadingInput = false;
                         break;
@@ -88,7 +101,7 @@ public class Main {
                 timeStep++;
                 terminal.flush();
             } while (keyStroke == null);
-            if(keyStroke == null){
+            if (keyStroke == null) {
                 break;
             }
 
@@ -105,10 +118,12 @@ public class Main {
             /*if (!checkPlayer(rows)) { //Kollar så att spelaren fortfarande är inom terminalfönster
                 putPlayerBack(rows);
             }*/
-            callMovementManeuver(keyStroke, rows); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
+            callMovementManeuver(keyStroke,
+                                 rows); //Kolla sen när spelet körs om vi måste öka eller minska hastighet
 
             if (LocalTime.now().isAfter(lastTimeMode.plusNanos(800000000))) {
-                createNewGameObjects(rows, columns);
+                createNewGameObjects(rows, columns, GameObjectType.ASTEROID);
+                if(LocalTime.now().isAfter(lastTimePoint.plusNanos(4*800000000L)))
                 newPosition(terminal);
                 lastTimeMode = LocalTime.now();
             }
@@ -127,9 +142,11 @@ public class Main {
             terminal.flush();
         }
     }
-    private static void gameOver(Terminal terminal,int rows,int columns) throws Exception {
+
+    private static void gameOver(Terminal terminal, int rows, int columns)
+            throws Exception {
         terminal.clearScreen();
-        terminal.setCursorPosition(columns/2,rows/2);
+        terminal.setCursorPosition(columns / 2, rows / 2);
         String str = "GAME OVER GAME OVER GAME OVER";
 
         for (int i = 0; i < str.length(); i++) {
@@ -157,17 +174,19 @@ public class Main {
                             objectX = object.getX() + oX;
                             objectY = object.getY() + oY;
 
-                            if (playerX == objectX && playerY == objectY){
-                                return true;
+                            if (playerX == objectX && playerY == objectY) {
+                                if (object instanceof Point) {
+                                    points += 1; // refactor?
+                                    return false;
+                                } else if (object instanceof Asteroid) {
+                                    return true;
+                                }
                             }
 
-
                         }
-
                     }
 
                 }
-
 
             }
 
@@ -192,14 +211,14 @@ public class Main {
     }
 
     private static boolean putPlayerBackUP(int rows, int stepSize) {
-        if  ((player.y+stepSize) > rows - player.sizeHeight){
+        if ((player.y + stepSize) > rows - player.sizeHeight) {
             return true;
         }
         return false;
     }
 
     private static boolean putPlayerBackDOWN(int rows, int stepSize) {
-        if ((player.getY()-stepSize) < 0) {
+        if ((player.getY() - stepSize) < 0) {
             return true;
         }
         return false;
@@ -211,7 +230,8 @@ public class Main {
             case ArrowDown -> {
                 if (!putPlayerBackUP(rows, stepSize)) {
                     player.oldY = player.y;
-                    player.setY(player.y + stepSize); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
+                    player.setY(player.y
+                                + stepSize); //se till så att det finns en set-metod i player (som plusar på y med värdet som skickas in)
                 }
             }
             case ArrowUp -> {
@@ -233,7 +253,7 @@ public class Main {
             terminal2.putCharacter(' ');
             terminal2.setCursorPosition(asteroid.x, asteroid.y);
             if (asteroid instanceof Asteroid a)
-            terminal2.putCharacter(a.getShape());
+                terminal2.putCharacter(a.getShape());
         }
     }
 
@@ -285,12 +305,22 @@ public class Main {
         }
     }
 
-    private static void createNewGameObjects( int rows, int columns, String gameObjectType) {
+    private static void createNewGameObjects(int rows,
+                                             int columns,
+                                             GameObjectType gameObjectType) {
         int randomPosition = random.nextInt(rows);
-        while (checkGameObjectsPositions(randomPosition,columns)) {
+        while (checkGameObjectsPositions(randomPosition, columns)) {
             randomPosition = random.nextInt(rows);
         }
-        gameObjects.add(new Asteroid(columns, randomPosition, columns, randomPosition, 1, 1, '\u25CF'));
+        if (gameObjectType == GameObjectType.ASTEROID) {
+            gameObjects.add(
+                    new Asteroid(columns, randomPosition, columns, randomPosition, 1, 1,
+                                 '\u25CF'));
+        } else if (gameObjectType == GameObjectType.POINT) {
+            gameObjects.add(
+                    new Point(columns, randomPosition, columns, randomPosition, 1, 1,
+                              '\u25CF'));
+        }
     }
 
     private static boolean checkGameObjectsPositions(int randomPosition, int columns) {
@@ -306,22 +336,22 @@ public class Main {
         return false;
     }
 
-    private static void newPosition(Terminal terminal) throws Exception{
-       //Loopar igenom listan av astroider och sätter ett nytt x värde
-       // System.out.println("newPositions");
+    private static void newPosition(Terminal terminal) throws Exception {
+        //Loopar igenom listan av astroider och sätter ett nytt x värde
+        // System.out.println("newPositions");
         for (GameObject asteroid : gameObjects) {
             asteroid.oldX = asteroid.x;
-            asteroid.x-=1;
+            asteroid.x -= 1;
         }
     }
 
-    private static void spaceShipCreator(){
+    private static void spaceShipCreator() {
 
-        char[][] spaceship =   {{' ',' ','\\','\\', ' '},
-                               {' ','_','_','_', ' '},
-                               {'#','[','=','=', '>'},
-                               {' ','_','_','_', '_'},
-                               {' ',' ','/','/', ' '}};
+        char[][] spaceship = {{' ', ' ', '\\', '\\', ' '},
+                              {' ', '_', '_', '_', ' '},
+                              {'#', '[', '=', '=', '>'},
+                              {' ', '_', '_', '_', '_'},
+                              {' ', ' ', '/', '/', ' '}};
 
     }
 
