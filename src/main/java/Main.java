@@ -128,12 +128,18 @@ public class Main {
         }
     }
     private static void gameOver(Terminal terminal,int rows,int columns) throws Exception {
+        String gameOver = "GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER";
         terminal.clearScreen();
-        terminal.setCursorPosition(columns/2,rows/2);
-        String str = "GAME OVER GAME OVER GAME OVER";
+        terminal.setCursorPosition(columns/2 - (gameOver.length()/2),rows/2);
 
-        for (int i = 0; i < str.length(); i++) {
-            terminal.putCharacter(str.charAt(i));
+        for (int i = 0; i < gameOver.length(); i++) {
+            terminal.putCharacter(gameOver.charAt(i));
+        }
+
+        String finalPoints = "POINTS: " + points;
+        terminal.setCursorPosition(columns/2 - (finalPoints.length()/2), rows/3);
+        for (char point : finalPoints.toCharArray()) {
+            terminal.putCharacter(point);
         }
 
     }
