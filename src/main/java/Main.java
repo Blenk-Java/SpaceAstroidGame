@@ -226,6 +226,25 @@ public class Main {
         }
     }
 
+    private static void drawScoreBoard(Terminal terminal2) throws Exception {
+        String scoreboard = "Scoreboard: " + points;
+        for (int i = 0; i < scoreboard.length(); i++) {
+            terminal2.setCursorPosition(i + 75, 2);
+            terminal2.putCharacter(scoreboard.charAt(i));
+        }
+    }
+
+    private static void moveScorePoints(Terminal terminal2) throws Exception {
+        //System.out.println("moveAsteroids()");
+        for (GameObject points : gameObjects) {
+            terminal2.setCursorPosition(points.oldX, points.oldY);
+            terminal2.putCharacter(' ');
+            terminal2.setCursorPosition(points.x, points.y);
+            if (points instanceof Point sp)
+                terminal2.putCharacter(sp.getShape());
+        }
+    }
+
     private static void moveAsteroids(Terminal terminal2) throws Exception {
         //System.out.println("moveAsteroids()");
         for (GameObject asteroid : gameObjects) {
