@@ -34,8 +34,6 @@ public class Main {
         int columns = terminalSize.getColumns(); //sätter en variabel till maxvärdet av bredden (x-värdet)
         int rows = terminalSize.getRows(); //sätter en variabel till maxvärdet av höjden (y-värdet)
 
-        GameField gameField = new GameField(columns, rows);
-
         int startY = rows / 2; //ska vi byta till int så blir det bättre koppling till columns & rows?
         int startX = columns / 10;
         int playerWidth = 6;
@@ -71,15 +69,15 @@ public class Main {
                     moveObjects(terminal); //metod för objekthanteraren
                     movePlayer(terminal);
                     removeGameObject(terminal);
-                    pointsTime = pointsCheck(pointsTime);
+                    pointsTime = pointsCheck(pointsTime); // Passiv inkomst
 
-                    if (timeStepForAsteroids > 50) {
-                        timeStepForAsteroids = 2;
+                    if (timeStepForAsteroids > 5) {
+                        timeStepForAsteroids = 0;
                         createNewGameObjects(rows, columns,GameObjectType.ASTEROID);
                     }
 
-                    if (timeStepForPoints > 200) {
-                        timeStepForAsteroids = 2;
+                    if (timeStepForPoints > 20) {
+                        timeStepForPoints= 0;
                         createNewGameObjects(rows, columns,GameObjectType.POINT);
                     }
 
@@ -91,11 +89,11 @@ public class Main {
                         continueReadingInput = false;
                         break;
                     }
-                }
+                    timeStepForAsteroids++;
+                    timeStepForPoints++;
 
-                timeStepForAsteroids++;
+                }
                 timeStep++;
-                timeStepForPoints++;
                 drawScoreBoard(terminal);
                 terminal.flush();
             } while (keyStroke == null);
@@ -148,7 +146,7 @@ public class Main {
         }
     }
     private static void gameOver(Terminal terminal,int rows,int columns) throws Exception {
-        String gameOver = "GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER";
+        String gameOver = "GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER GAME OVER";
         terminal.clearScreen();
         terminal.setCursorPosition(columns/2 - (gameOver.length()/2),rows/2);
 
@@ -186,6 +184,7 @@ public class Main {
                             if (playerX == objectX && playerY == objectY) {
                                 if (object instanceof Point) {
                                     points += 50; // refactor?
+                                    gameObjects.remove(object);
                                     return false;
                                 } else if (object instanceof Asteroid) {
                                     return true;
