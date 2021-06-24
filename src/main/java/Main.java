@@ -192,7 +192,7 @@ public class Main {
 
                             if (playerX == objectX && playerY == objectY) {
                                 if (object instanceof Point) {
-                                    points += 500; // refactor?
+                                    points += 288; // refactor?
                                     gameObjects.remove(object);
                                     return false;
                                 } else if (object instanceof Asteroid) {
